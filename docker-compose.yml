@@ -12,8 +12,12 @@ services:
       - POSTGRES_DB=rag_chat_db
       - REDIS_HOST=redis
       - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - QDRANT_COLLECTION_NAME=documents
       - SECRET_KEY=development_secret_key
       - STARTUP_DELAY=5
+      - OPENROUTER_API_KEY=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
+      - OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
     depends_on:
       db:
         condition: service_healthy
@@ -26,7 +30,7 @@ services:
     networks:
       - rag_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3

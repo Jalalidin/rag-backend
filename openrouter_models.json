@@ -1,0 +1,10 @@
+[
+    "mistralai/mistral-7b-instruct",
+    "openai/gpt-3.5-turbo",
+    "google/gemini-pro",
+    "meta-llama/llama-2-70b-chat",
+    "anthropic/claude-2",
+    "openai/gpt-4o",
+    "anthropic/claude-3-5-sonnet",
+    "mistralai/mixtral-8x7b-instruct"
+] 

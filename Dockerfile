@@ -21,18 +21,23 @@ RUN apt-get update && apt-get install -y \
 ENV PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/
 ENV PIP_TRUSTED_HOST=mirrors.aliyun.com
 
-# Copy dependency files
+# Install uv first
+RUN pip install uv
+
+# Copy only dependency files
 COPY --chown=appuser:appuser pyproject.toml ./
 
-# Install Python dependencies using uv and pip
-RUN pip install --no-cache-dir uv
-RUN uv venv
-RUN . .venv/bin/activate && uv sync
+# Create venv and install dependencies
+RUN uv venv && \
+    . .venv/bin/activate && \
+    uv pip compile pyproject.toml -o requirements.txt && \
+    uv pip sync requirements.txt
 
-# Copy application code
+# Copy the application code into the container, excluding the .venv directory
 COPY --chown=appuser:appuser app/ ./app/
 COPY --chown=appuser:appuser alembic/ ./alembic/
 COPY --chown=appuser:appuser alembic.ini ./
+COPY --chown=appuser:appuser openrouter_models.json ./
 
 # Set environment variables
 ENV PYTHONPATH=/app
@@ -45,7 +50,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
 
-# Run the application using uv and activate the virtual environment
+# Run the application
 CMD . .venv/bin/activate && uvicorn app.main:app --host "0.0.0.0" --port "8000" --reload 
